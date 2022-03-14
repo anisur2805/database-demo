@@ -71,3 +71,35 @@ function dbdemo_drop_column() {
       update_option('dbdemo_db_version', DBDEMO_DB_VERSION);
 }
 add_action('plugin_loaded', 'dbdemo_drop_column');
+
+/**
+ * Load some dummy data once the plugin is activated
+ * 
+ */
+function dbdemo_load_data() {
+      global $wpdb;
+      $table_name = $wpdb->prefix . 'persons';
+      $wpdb->insert("{$table_name}",[
+         'name' => 'Anisur Rahaman'   ,
+         'email' => 'anisur@rahman.com',
+      ]);
+      $wpdb->insert("{$table_name}",[
+            'name' => 'John Rahaman'   ,
+            'email' => 'john@rahman.com',
+         ]);
+      //    $wpdb->query()
+}
+register_activation_hook(__FILE__, 'dbdemo_load_data');
+
+/**
+ * empty the table when deactivate 
+ * the plugin 
+ * 
+ */
+function dbdemo_flush_data(){
+      global $wpdb;
+      $table_name = $wpdb->prefix . 'persons';
+      $query = "TRUNCATE TABLE {$table_name}";
+      $wpdb->query( $query );
+}
+register_deactivation_hook(__FILE__, 'dbdemo_flush_data' );

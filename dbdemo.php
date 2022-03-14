@@ -103,3 +103,53 @@ function dbdemo_flush_data(){
       $wpdb->query( $query );
 }
 register_deactivation_hook(__FILE__, 'dbdemo_flush_data' );
+
+/**
+ * Add Dbdemo Menu Page 
+ * Toplevel 
+ */
+function dbdemo_admin_menu() {
+      add_menu_page(__('DB Demo', 'database-demo'), __('DB Demo', 'database-demo'), 'manage_options', 'dbdemo', 'render_dbdemo_page');
+}
+add_action('admin_menu', 'dbdemo_admin_menu');
+
+/**
+ * Query data from db
+ */
+function render_dbdemo_page() {
+      echo '<h2>DbDemo</h2>';
+      
+      global $wpdb;
+      $id = $_GET['pid'] ?? 0;
+      $id = sanitize_key( $id );
+      if( $id ) {
+            $result = $wpdb->get_row("SELECT * FROm {$wpdb->prefix}persons WHERE id={$id}");
+            if( $result ){
+                  echo "Name: {$result->name}<br/>";
+                  echo "Email: {$result->email}";
+            }
+      }
+      ?>
+      <form action="" method="post">
+            <?php wp_nonce_field('dbnonce', 'nonce'); ?>
+            Name: <input type="text" name="name" value="" /><br/>
+            Email: <input type="text" name="email" value="" /><br/>
+            <?php submit_button('Add Record'); ?>
+      </form>
+      <?php
+      
+      if( isset( $_POST['submit'] ) ) {
+            $nonce = sanitize_text_field($_POST['nonce']);
+                        
+            if( wp_verify_nonce( $nonce, 'dbnonce' ) ) {
+                  $name = sanitize_text_field($_POST['name']);
+                  $email = sanitize_text_field($_POST['email']);      
+                  $wpdb->insert("{$wpdb->prefix}persons", [
+                        'name' => $name,
+                        'email' => $email
+                  ]);
+            } else {
+                  _e('You are not authorized', 'database-demo');
+            }
+      }
+}

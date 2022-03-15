@@ -6,38 +6,31 @@ if (!class_exists('WP_List_Table')) {
 }
 
 class DBDEMO_USER_LIST extends WP_List_Table {
+      private $_items;
       function __construct( $data ) {
-            parent::__construct($data);
-      }
-      
-      public function get_result() {
-            global $wpdb;
-            return $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons"), ARRAY_A);
+            parent::__construct();
+            $this->_items = $data;
       }
       
       public function prepare_items() {
-
             $columns  = $this->get_columns();
             $hidden   = $this->get_hidden_columns();
             $sortable = $this->get_sortable_columns();
 
-            // $data = $this->table_data();
-            // usort($data, array(&$this, 'sort_data'));
-
-            $perPage     = 6;
+            $perPage     = 2;
             $currentPage = $this->get_pagenum();
-            // $totalItems  = count($data);
+            $totalItems  = count($this->_items );
 
             $this->set_pagination_args(array(
-                  // 'total_items' => $totalItems,
-                  'total_items' => 10,
+                  'total_items' => $totalItems,
                   'per_page'    => $perPage,
             ));
 
-            // $data = array_slice($data, (($currentPage - 1) * $perPage), $perPage);
-
+            // 10, 12, 6
+            $data = array_slice($this->_items, ($currentPage - 1) * $perPage, $perPage);
+            print_r( $data );
             $this->_column_headers = array($columns, $hidden, $sortable);
-            $this->items           = $this->get_result();
+            $this->items           = $data;
       }
 
       public function get_columns() {
@@ -45,6 +38,7 @@ class DBDEMO_USER_LIST extends WP_List_Table {
                   'cb'          => '<input type="checkbox" />',
                   'name'    => __('Name', 'dbdemo'),
                   'email'      => __('Email', 'dbdemo'),
+                  'action'      => __('Action', 'dbdemo'),
             );
 
             return $columns;
@@ -53,14 +47,20 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       public function column_cb($item) {
             return "<input type='checkbox' value='{$item["id"]}'/>";
       }
+      
+      public function column_action( $item ) {
+            $link = wp_nonce_url( admin_url( '?page=dbdemo&pid='.$item['id'] ), 'dbdemo_edit', 'n' );
+            return '<a href="'. $link .'">'. __('Action', 'dbdemo').'</a>';
+      }
 
       public function column_name($item) {
+            $nonce = wp_create_nonce('dbdemo_edit');
             $actions = [];
+            
+            $actions['edit']   = sprintf('<a href="?page=%s&pid=%s&n=%s">Edit</a>', $_REQUEST['page'], $item['id'], $nonce);
+            $actions['delete']   = sprintf('<a href="?page=%s&pid=%s&n=%s&action=delete">Delete</a>', $_REQUEST['page'], $item['id'], $nonce );
 
-            $actions['edit']   = sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', $item['id']);
-            $actions['delete'] = sprintf('<a href="?page=%s&action=%s&book=%s">Delete</a>', $_REQUEST['page'], 'delete', $item['id']);
-
-            return sprintf('<strong>%1$s</strong>%2$s', $item['name'], $this->row_actions($actions));
+            return sprintf( '<strong>%1$s</strong>%2$s', $item['name'], $this->row_actions( $actions ) );
       }
 
       public function get_hidden_columns() {
@@ -84,10 +84,10 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       // }
 
       public function ar_table_search_filter($item) {
-            $title       = strtolower($item['title']);
+            $name       = strtolower($item['name']);
             $search_name = sanitize_text_field($_REQUEST['s']);
             $search_name = strtolower($search_name);
-            if (strpos($title, $search_name) !== false) {
+            if (strpos($name, $search_name) !== false) {
                   return true;
             }
 
@@ -140,15 +140,17 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       }
 
       public function column_default($item, $column_name) {
-            switch ($column_name) {
-                  case 'id':
-                  case 'name':
-                  case 'email':
-                        return $item[$column_name];
+            // switch ($column_name) {
+            //       case 'id':
+            //       case 'name':
+            //       case 'email':
+            //             return $item[$column_name];
 
-                  default:
-                        return print_r($item, true);
-            }
+            //       default:
+            //             return print_r($item, true);
+            // }
+            
+            return $item[$column_name];
       }
 
       // private function sort_data($a, $b) {

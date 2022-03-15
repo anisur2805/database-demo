@@ -121,9 +121,18 @@ add_action('admin_menu', 'dbdemo_admin_menu');
  * Query data from db
  */
 function render_dbdemo_page() {
-
-
       global $wpdb;
+      if( isset( $_GET['pid'] ) ) {
+            if( ! isset( $_GET['n'] ) || ! wp_verify_nonce( $_GET['n'], 'dbdemo_edit' ) ) {
+                  wp_die( __('You are not authorized', 'dbdemo' ) );
+            }
+            
+            if( isset( $_GET['action']) && $_GET['action'] == 'delete' ) {
+                  $wpdb->delete( "{$wpdb->prefix}persons", ['id' => sanitize_key( $_GET['pid'] ) ] );
+                  $_GET['pid'] = null;
+            }
+      }
+      
       $id = $_GET['pid'] ?? 0;
       $id = sanitize_key($id);
       if ($id) {
@@ -165,11 +174,11 @@ function render_dbdemo_page() {
             <?php
             
             global $wpdb;
-            $result = $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons"), ARRAY_A);
-            // print_r( $result );
+            $dbdemo_users = $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons ORDER BY id DESC"), ARRAY_A);
+            // print_r( $dbdemo_users );
             // die();
-            $data = array();
-            $dbdemo_user_list = new DBDEMO_USER_LIST( $result );
+            // $data = array();
+            $dbdemo_user_list = new DBDEMO_USER_LIST( $dbdemo_users );
             $dbdemo_user_list->prepare_items();
             $dbdemo_user_list->display();
             ?>
@@ -215,7 +224,8 @@ add_action('admin_post_dbdemo_admin_post_nonce', function () {
                         'name' => $name,
                         'email' => $email
                   ], ['id' => $id]);
-                  wp_redirect(admin_url('admin.php?page=dbdemo&pid=' . $id));
+                  $nonce = wp_create_nonce('dbdemo_edit');
+                  wp_redirect(admin_url('admin.php?page=dbdemo&pid=' . $id.'n={$nonce}'));
             } else {
                   $wpdb->insert("{$wpdb->prefix}persons", [
                         'name' => $name,

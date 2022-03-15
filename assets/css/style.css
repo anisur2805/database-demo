@@ -1,24 +1,36 @@
+.mb-10 {
+	margin-bottom: 10px !important;
+}
 
-      .mb-10{
-            margin-bottom: 10px !important;
-      }
-       .dbdemo-box-item h2 {
-             color: #0080d5;
-             margin: 0 0 15px;
-             
-       }
-      .dbdemo-box-item .form-group {
-            margin-bottom: 20px;
-      } 
-      .dbdemo-box-item .form-group input {
-            width: 100%;
-            margin-top: 5px;
-            border: 1px solid #ddd;
-            background: #fff;
-            min-height: 40px;
-            box-sizing: border-box;
-      }
-      
-      .dbdemo-box-item p.submit {
-            padding-bottom: 0 !important;
-      }
+.d-none {
+      display: none;
+}
+
+.dbdemo-box-item {
+      background: #ddd;
+      margin: 10px 0 20px 20px;
+      padding: 20px;
+      border-radius: 6px;
+      width: calc(100% - 80px);
+      box-sizing: border-box;
+}
+
+.dbdemo-box-item h2 {
+	color: #0080d5;
+	margin: 0 0 15px;
+}
+.dbdemo-box-item .form-group {
+	margin-bottom: 20px;
+}
+.dbdemo-box-item .form-group input {
+	width: 100%;
+	margin-top: 5px;
+	border: 1px solid #ddd;
+	background: #fff;
+	min-height: 40px;
+	box-sizing: border-box;
+}
+
+.dbdemo-box-item p.submit {
+	padding-bottom: 0 !important;
+}

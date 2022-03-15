@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('DBDEMO_DB_VERSION', '1.0');
-define("DBDEMO_DIR_URL", plugin_dir_url(__FILE__) . "/assets");
+$test = define("DBDEMO_DIR_URL", plugin_dir_url(__FILE__) . "assets");
 
 require_once 'class.dbdemo.php';
 require_once 'assets.php';
@@ -74,7 +74,7 @@ function dbdemo_drop_column() {
       }
       update_option('dbdemo_db_version', DBDEMO_DB_VERSION);
 }
-add_action('plugin_loaded', 'dbdemo_drop_column');
+// add_action('plugin_loaded', 'dbdemo_drop_column');
 
 /**
  * Load some dummy data once the plugin is activated
@@ -121,7 +121,7 @@ add_action('admin_menu', 'dbdemo_admin_menu');
  * Query data from db
  */
 function render_dbdemo_page() {
-     
+
 
       global $wpdb;
       $id = $_GET['pid'] ?? 0;
@@ -137,7 +137,7 @@ function render_dbdemo_page() {
 
       <div class="dbdemo-box-item">
             <h2>DbDemo</h2>
-            <div class="notice notice-success is-dismissible mb-10">
+            <div class="d-none notice notice-success is-dismissible mb-10">
                   <p>Error</p>
             </div>
 
@@ -145,28 +145,29 @@ function render_dbdemo_page() {
                   <?php wp_nonce_field('dbnonce', 'nonce'); ?>
                   <input type="hidden" name="action" value="dbdemo_admin_post_nonce" />
                   <div class="form-group">
-                        Name: <input type="text" name="name" value="<?php if( $id ) echo $result->name; ?>" />
+                        Name: <input type="text" name="name" value="<?php if ($id) echo $result->name; ?>" />
                   </div>
                   <div class="form-group">
-                        Email: <input type="text" name="email" value="<?php if( $id ) echo $result->email; ?>" />
-                   </div>
+                        Email: <input type="text" name="email" value="<?php if ($id) echo $result->email; ?>" />
+                  </div>
                   <?php
-                        if( $id ) {
-                              echo '<input type="hidden" name="id" value="'. $id.'" />';
-                              submit_button('Update Record');
-                        } else {
-                              submit_button('Add Record');
-                        }
+                  if ($id) {
+                        echo '<input type="hidden" name="id" value="' . $id . '" />';
+                        submit_button('Update Record');
+                  } else {
+                        submit_button('Add Record');
+                  }
                   ?>
             </form>
       </div>
       <div class="dbdemo-box-item">
             <h2>Users List</h2>
-      <?php 
-             $arTable = new ARTable();
-             $arTable->prepare_items();
-             $arTable->display();
-      ?>
+            <?php
+            $data = array();
+            $dbdemo_user_list = new DBDEMO_USER_LIST( $data );
+            $dbdemo_user_list->prepare_items();
+            $dbdemo_user_list->display();
+            ?>
       </div>
 <?php
 
@@ -191,34 +192,33 @@ function render_dbdemo_page() {
 
 
 }
-      /**
-       * Insert data to table 
-       * way 2
-       */
-      add_action('admin_post_dbdemo_admin_post_nonce', function () {
-            global $wpdb;
-            $nonce = sanitize_text_field($_POST['nonce']);
+/**
+ * Insert data to table 
+ * way 2
+ */
+add_action('admin_post_dbdemo_admin_post_nonce', function () {
+      global $wpdb;
+      $nonce = sanitize_text_field($_POST['nonce']);
 
-            if (wp_verify_nonce($nonce, 'dbnonce')) {
-                  $name = sanitize_text_field($_POST['name']);
-                  $email = sanitize_text_field($_POST['email']);
-                  $id = sanitize_text_field($_POST['id']);
-                  
-                 if( $id ) {
+      if (wp_verify_nonce($nonce, 'dbnonce')) {
+            $name = sanitize_text_field($_POST['name']);
+            $email = sanitize_text_field($_POST['email']);
+            $id = sanitize_text_field($_POST['id']);
+
+            if ($id) {
                   $wpdb->update("{$wpdb->prefix}persons", [
                         'name' => $name,
                         'email' => $email
-                  ], ['id' => $id ]);
-                  wp_redirect(admin_url('admin.php?page=dbdemo&pid='.$id));
-                 } else {
+                  ], ['id' => $id]);
+                  wp_redirect(admin_url('admin.php?page=dbdemo&pid=' . $id));
+            } else {
                   $wpdb->insert("{$wpdb->prefix}persons", [
                         'name' => $name,
                         'email' => $email
                   ]);
                   wp_redirect(admin_url('admin.php?page=dbdemo'));
-                 }
             }
-          
-      });
+      }
+});
 
 ?>

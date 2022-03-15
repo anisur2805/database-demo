@@ -5,40 +5,41 @@ if (!class_exists('WP_List_Table')) {
       require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
-class ARTable extends WP_List_Table {
+class DBDEMO_USER_LIST extends WP_List_Table {
+      function __construct( $data ) {
+            parent::__construct($data);
+      }
+      
       public function prepare_items() {
 
             $columns  = $this->get_columns();
             $hidden   = $this->get_hidden_columns();
             $sortable = $this->get_sortable_columns();
 
-            $data = $this->table_data();
-            usort($data, array(&$this, 'sort_data'));
+            // $data = $this->table_data();
+            // usort($data, array(&$this, 'sort_data'));
 
             $perPage     = 6;
             $currentPage = $this->get_pagenum();
-            $totalItems  = count($data);
+            // $totalItems  = count($data);
 
             $this->set_pagination_args(array(
-                  'total_items' => $totalItems,
+                  // 'total_items' => $totalItems,
+                  'total_items' => 10,
                   'per_page'    => $perPage,
             ));
 
-            $data = array_slice($data, (($currentPage - 1) * $perPage), $perPage);
+            // $data = array_slice($data, (($currentPage - 1) * $perPage), $perPage);
 
             $this->_column_headers = array($columns, $hidden, $sortable);
-            $this->items           = $data;
+            // $this->items           = $data;
       }
 
       public function get_columns() {
             $columns = array(
                   'cb'          => '<input type="checkbox" />',
-                  'id'          => 'ID',
-                  'title'       => 'Title',
-                  'description' => 'Desc',
-                  'year'        => 'Year',
-                  'director'    => 'Director',
-                  'rating'      => 'Rating',
+                  'name'    => __('Name', 'dbdemo'),
+                  'email'      => __('Rating', 'dbdemo'),
             );
 
             return $columns;
@@ -48,13 +49,13 @@ class ARTable extends WP_List_Table {
             return "<input type='checkbox' value='{$item["id"]}'/>";
       }
 
-      public function column_title($item) {
+      public function column_name($item) {
             $actions = [];
 
             $actions['edit']   = sprintf('<a href="?page=%s&action=%s&book=%s">Edit</a>', $_REQUEST['page'], 'edit', $item['id']);
             $actions['delete'] = sprintf('<a href="?page=%s&action=%s&book=%s">Delete</a>', $_REQUEST['page'], 'delete', $item['id']);
 
-            return sprintf('<strong>%1$s</strong>%2$s', $item['title'], $this->row_actions($actions));
+            return sprintf('<strong>%1$s</strong>%2$s', $item['name'], $this->row_actions($actions));
       }
 
       public function get_hidden_columns() {
@@ -104,7 +105,7 @@ class ARTable extends WP_List_Table {
       }
 
 
-      private function table_data() {
+      // private function table_data() {
             // require_once "datalist.php";
 
             // if (isset($_REQUEST['s'])) {
@@ -116,7 +117,7 @@ class ARTable extends WP_List_Table {
             // }
 
             // return $data;
-      }
+      // }
 
       public function extra_tablenav($which) {
             if ('top' == $which) {
@@ -136,11 +137,8 @@ class ARTable extends WP_List_Table {
       public function column_default($item, $column_name) {
             switch ($column_name) {
                   case 'id':
-                  case 'title':
-                  case 'description':
-                  case 'year':
-                  case 'director':
-                  case 'rating':
+                  case 'name':
+                  case 'email':
                         return $item[$column_name];
 
                   default:
@@ -148,24 +146,24 @@ class ARTable extends WP_List_Table {
             }
       }
 
-      private function sort_data($a, $b) {
-            $orderby = 'title';
-            $order   = 'asc';
+      // private function sort_data($a, $b) {
+      //       $orderby = 'title';
+      //       $order   = 'asc';
 
-            if (!empty($_GET['orderby'])) {
-                  $orderby = $_GET['orderby'];
-            }
+      //       if (!empty($_GET['orderby'])) {
+      //             $orderby = $_GET['orderby'];
+      //       }
 
-            if (!empty($_GET['order'])) {
-                  $order = $_GET['order'];
-            }
+      //       if (!empty($_GET['order'])) {
+      //             $order = $_GET['order'];
+      //       }
 
-            $result = strcmp($a[$orderby], $b[$orderby]);
+      //       $result = strcmp($a[$orderby], $b[$orderby]);
 
-            if ($order === 'asc') {
-                  return $result;
-            }
+      //       if ($order === 'asc') {
+      //             return $result;
+      //       }
 
-            return $result;
-      }
+      //       return $result;
+      // }
 }

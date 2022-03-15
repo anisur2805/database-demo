@@ -10,6 +10,11 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             parent::__construct($data);
       }
       
+      public function get_result() {
+            global $wpdb;
+            return $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons"), ARRAY_A);
+      }
+      
       public function prepare_items() {
 
             $columns  = $this->get_columns();
@@ -32,14 +37,14 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             // $data = array_slice($data, (($currentPage - 1) * $perPage), $perPage);
 
             $this->_column_headers = array($columns, $hidden, $sortable);
-            // $this->items           = $data;
+            $this->items           = $this->get_result();
       }
 
       public function get_columns() {
             $columns = array(
                   'cb'          => '<input type="checkbox" />',
                   'name'    => __('Name', 'dbdemo'),
-                  'email'      => __('Rating', 'dbdemo'),
+                  'email'      => __('Email', 'dbdemo'),
             );
 
             return $columns;
@@ -65,8 +70,8 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       public function get_sortable_columns() {
             return array(
                   'id'     => array('id', false),
-                  'rating' => array('rating', false),
-                  'title'  => array('title', false),
+                  'name' => array('name', false),
+                  'email'  => array('email', false),
             );
       }
 

@@ -128,10 +128,10 @@ function render_dbdemo_page() {
       $id = sanitize_key($id);
       if ($id) {
             $result = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}persons WHERE id={$id}");
-            if ($result) {
-                  echo "Name: {$result->name}<br/>";
-                  echo "Email: {$result->email}";
-            }
+            // if ($result) {
+            //       echo "Name: {$result->name}<br/>";
+            //       echo "Email: {$result->email}";
+            // }
       }
 ?>
 
@@ -163,8 +163,13 @@ function render_dbdemo_page() {
       <div class="dbdemo-box-item">
             <h2>Users List</h2>
             <?php
+            
+            global $wpdb;
+            $result = $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons"), ARRAY_A);
+            // print_r( $result );
+            // die();
             $data = array();
-            $dbdemo_user_list = new DBDEMO_USER_LIST( $data );
+            $dbdemo_user_list = new DBDEMO_USER_LIST( $result );
             $dbdemo_user_list->prepare_items();
             $dbdemo_user_list->display();
             ?>

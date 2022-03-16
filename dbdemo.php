@@ -180,8 +180,16 @@ function render_dbdemo_page() {
             // $data = array();
             $dbdemo_user_list = new DBDEMO_USER_LIST( $dbdemo_users );
             $dbdemo_user_list->prepare_items();
-            $dbdemo_user_list->display();
             ?>
+            <div class="wrap">
+                  <form id="art-search-form" method="POST">
+                  <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>" />
+                        <?php 
+                              $dbdemo_user_list->search_box( 'search', 'search_id' );
+                              $dbdemo_user_list->display();
+                        ?>
+                  </form>
+            </div>
       </div>
 <?php
 

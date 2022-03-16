@@ -26,11 +26,11 @@ class DBDEMO_USER_LIST extends WP_List_Table {
                   'per_page'    => $perPage,
             ));
 
-            // 10, 12, 6
             $data = array_slice($this->_items, ($currentPage - 1) * $perPage, $perPage);
-            print_r( $data );
             $this->_column_headers = array($columns, $hidden, $sortable);
             $this->items           = $data;
+            $this->table_data( $data );
+            
       }
 
       public function get_columns() {
@@ -75,15 +75,15 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             );
       }
 
-      // public function get_bulk_actions() {
-      //       $actions = [
-      //             'edit' => __( 'Edit', 'word-count' ),
-      //       ];
+      public function get_bulk_actions() {
+            $actions = [
+                  'edit' => __( 'Edit', 'word-count' ),
+            ];
 
-      //       return $actions;
-      // }
+            return $actions;
+      }
 
-      public function ar_table_search_filter($item) {
+      public function dbdemo_user_search($item) {
             $name       = strtolower($item['name']);
             $search_name = sanitize_text_field($_REQUEST['s']);
             $search_name = strtolower($search_name);
@@ -110,19 +110,17 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       }
 
 
-      // private function table_data() {
-            // require_once "datalist.php";
+      private function table_data( $data ) {
+            if (isset($_REQUEST['s'])) {
+                  $data = array_filter($data, array($this, 'dbdemo_user_search'));
+            }
 
-            // if (isset($_REQUEST['s'])) {
-            //       $data = array_filter($data, array($this, 'ar_table_search_filter'));
-            // }
+            if (isset($_REQUEST['filter_s']) && !empty($_REQUEST['filter_s'])) {
+                  $data = array_filter($data, array($this, 'filter_callback'));
+            }
 
-            // if (isset($_REQUEST['filter_s']) && !empty($_REQUEST['filter_s'])) {
-            //       $data = array_filter($data, array($this, 'filter_callback'));
-            // }
-
-            // return $data;
-      // }
+            return $data;
+      }
 
       public function extra_tablenav($which) {
             if ('top' == $which) {

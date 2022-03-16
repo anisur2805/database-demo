@@ -7,19 +7,20 @@ if (!class_exists('WP_List_Table')) {
 
 class DBDEMO_USER_LIST extends WP_List_Table {
       private $_items;
-      function __construct( $data ) {
+      function __construct($data) {
             parent::__construct();
             $this->_items = $data;
       }
-      
+
       public function prepare_items() {
+            global $wpdb;
             $columns  = $this->get_columns();
             $hidden   = $this->get_hidden_columns();
             $sortable = $this->get_sortable_columns();
 
-            $perPage     = 2;
+            $perPage     = 10;
             $currentPage = $this->get_pagenum();
-            $totalItems  = count($this->_items );
+            $totalItems  = count($this->_items);
 
             $this->set_pagination_args(array(
                   'total_items' => $totalItems,
@@ -29,8 +30,7 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             $data = array_slice($this->_items, ($currentPage - 1) * $perPage, $perPage);
             $this->_column_headers = array($columns, $hidden, $sortable);
             $this->items           = $data;
-            $this->table_data( $data );
-            
+            $this->table_data($data);
       }
 
       public function get_columns() {
@@ -47,20 +47,20 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       public function column_cb($item) {
             return "<input type='checkbox' value='{$item["id"]}'/>";
       }
-      
-      public function column_action( $item ) {
-            $link = wp_nonce_url( admin_url( '?page=dbdemo&pid='.$item['id'] ), 'dbdemo_edit', 'n' );
-            return '<a href="'. $link .'">'. __('Action', 'dbdemo').'</a>';
+
+      public function column_action($item) {
+            $link = wp_nonce_url(admin_url('?page=dbdemo&pid=' . $item['id']), 'dbdemo_edit', 'n');
+            return '<a href="' . $link . '">' . __('Action', 'dbdemo') . '</a>';
       }
 
       public function column_name($item) {
             $nonce = wp_create_nonce('dbdemo_edit');
             $actions = [];
-            
-            $actions['edit']   = sprintf('<a href="?page=%s&pid=%s&n=%s">Edit</a>', $_REQUEST['page'], $item['id'], $nonce);
-            $actions['delete']   = sprintf('<a href="?page=%s&pid=%s&n=%s&action=delete">Delete</a>', $_REQUEST['page'], $item['id'], $nonce );
 
-            return sprintf( '<strong>%1$s</strong>%2$s', $item['name'], $this->row_actions( $actions ) );
+            $actions['edit']   = sprintf('<a href="?page=%s&pid=%s&n=%s">Edit</a>', $_REQUEST['page'], $item['id'], $nonce);
+            $actions['delete']   = sprintf('<a href="?page=%s&pid=%s&n=%s&action=delete">Delete</a>', $_REQUEST['page'], $item['id'], $nonce);
+
+            return sprintf('<strong>%1$s</strong>%2$s', $item['name'], $this->row_actions($actions));
       }
 
       public function get_hidden_columns() {
@@ -77,13 +77,13 @@ class DBDEMO_USER_LIST extends WP_List_Table {
 
       public function get_bulk_actions() {
             $actions = [
-                  'edit' => __( 'Edit', 'word-count' ),
+                  'edit' => __('Edit', 'word-count'),
             ];
 
             return $actions;
       }
 
-      public function dbdemo_user_search($item) {
+      public function dbdemo_user_search($item) { 
             $name       = strtolower($item['name']);
             $search_name = sanitize_text_field($_REQUEST['s']);
             $search_name = strtolower($search_name);
@@ -110,21 +110,21 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       }
 
 
-      private function table_data( $data ) {
+      private function table_data($data) {
             if (isset($_REQUEST['s'])) {
-                  $data = array_filter($data, array($this, 'dbdemo_user_search'));
+                  $data2 = array_filter($data, array($this, 'dbdemo_user_search'));
             }
 
-            if (isset($_REQUEST['filter_s']) && !empty($_REQUEST['filter_s'])) {
-                  $data = array_filter($data, array($this, 'filter_callback'));
-            }
+            // if (isset($_REQUEST['filter_s']) && !empty($_REQUEST['filter_s'])) {
+            //       $data = array_filter($data, array($this, 'filter_callback'));
+            // }
 
-            return $data;
+            return $data2;
       }
 
       public function extra_tablenav($which) {
             if ('top' == $which) {
-             ?>
+?>
                   <div class="actions align-left">
                         <select name="filter_s" id="filter_s">
                               <option>All</option>
@@ -133,7 +133,7 @@ class DBDEMO_USER_LIST extends WP_List_Table {
                         </select>
                         <?php submit_button(__('Filter', 'word-count'), 'button', 'submit', false); ?>
                   </div>
-             <?php
+<?php
             }
       }
 
@@ -147,7 +147,7 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             //       default:
             //             return print_r($item, true);
             // }
-            
+
             return $item[$column_name];
       }
 

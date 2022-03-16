@@ -143,52 +143,53 @@ function render_dbdemo_page() {
             // }
       }
 ?>
-
-      <div class="dbdemo-box-item">
-            <h2>DbDemo</h2>
-            <div class="d-none notice notice-success is-dismissible mb-10">
-                  <p>Error</p>
-            </div>
-
-            <form action="<?php echo admin_url('admin-post.php'); ?>" method="post">
-                  <?php wp_nonce_field('dbnonce', 'nonce'); ?>
-                  <input type="hidden" name="action" value="dbdemo_admin_post_nonce" />
-                  <div class="form-group">
-                        Name: <input type="text" name="name" value="<?php if ($id) echo $result->name; ?>" />
+      <div class="wrap">
+            <div class="dbdemo-box-item">
+                  <h2>DbDemo</h2>
+                  <div class="d-none notice notice-success is-dismissible mb-10">
+                        <p>Error</p>
                   </div>
-                  <div class="form-group">
-                        Email: <input type="text" name="email" value="<?php if ($id) echo $result->email; ?>" />
-                  </div>
-                  <?php
-                  if ($id) {
-                        echo '<input type="hidden" name="id" value="' . $id . '" />';
-                        submit_button('Update Record');
-                  } else {
-                        submit_button('Add Record');
-                  }
-                  ?>
-            </form>
-      </div>
-      <div class="dbdemo-box-item">
-            <h2>Users List</h2>
-            <?php
-            
-            global $wpdb;
-            $dbdemo_users = $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons ORDER BY id DESC"), ARRAY_A);
-            // print_r( $dbdemo_users );
-            // die();
-            // $data = array();
-            $dbdemo_user_list = new DBDEMO_USER_LIST( $dbdemo_users );
-            $dbdemo_user_list->prepare_items();
-            ?>
-            <div class="wrap">
-                  <form id="art-search-form" method="POST">
-                  <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>" />
-                        <?php 
-                              $dbdemo_user_list->search_box( 'search', 'search_id' );
-                              $dbdemo_user_list->display();
+
+                  <form action="<?php echo admin_url('admin-post.php'); ?>" method="post">
+                        <?php wp_nonce_field('dbnonce', 'nonce'); ?>
+                        <input type="hidden" name="action" value="dbdemo_admin_post_nonce" />
+                        <div class="form-group">
+                              Name: <input type="text" name="name" value="<?php if ($id) echo $result->name; ?>" />
+                        </div>
+                        <div class="form-group">
+                              Email: <input type="text" name="email" value="<?php if ($id) echo $result->email; ?>" />
+                        </div>
+                        <?php
+                        if ($id) {
+                              echo '<input type="hidden" name="id" value="' . $id . '" />';
+                              submit_button('Update Record');
+                        } else {
+                              submit_button('Add Record');
+                        }
                         ?>
                   </form>
+            </div>
+            <div class="dbdemo-box-item">
+                  <h2>Users List</h2>
+                  <?php
+                  
+                  global $wpdb;
+                  $dbdemo_users = $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons ORDER BY id DESC"), ARRAY_A);
+                  // print_r( $dbdemo_users );
+                  // die();
+                  // $data = array();
+                  $dbdemo_user_list = new DBDEMO_USER_LIST( $dbdemo_users );
+                  $dbdemo_user_list->prepare_items();
+                  ?>
+                  <div class="wrap">
+                        <form id="art-search-form" method="POST">
+                        <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>" />
+                              <?php 
+                                    $dbdemo_user_list->search_box( 'search', 'search_id' );
+                                    $dbdemo_user_list->display();
+                              ?>
+                        </form>
+                  </div>
             </div>
       </div>
 <?php

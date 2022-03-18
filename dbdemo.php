@@ -173,18 +173,18 @@ function render_dbdemo_page() {
                   <h2>Users List</h2>
                   <?php
                   
-                  global $wpdb;
-                  $dbdemo_users = $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons ORDER BY id DESC"), ARRAY_A);
+                  // global $wpdb;
+                  // $dbdemo_users = $wpdb->get_results($wpdb->prepare("SELECT id, name, email FROM {$wpdb->prefix}persons ORDER BY id DESC"), ARRAY_A);
                   // print_r( $dbdemo_users );
                   // die();
                   // $data = array();
-                  $dbdemo_user_list = new DBDEMO_USER_LIST( $dbdemo_users );
-                  $dbdemo_user_list->prepare_items();
+                  $dbdemo_user_list = new DBDEMO_USER_LIST();
                   ?>
                   <div class="wrap">
-                        <form id="art-search-form" method="POST">
+                        <form id="art-search-form" method="GET">
                         <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>" />
                               <?php 
+                                    $dbdemo_user_list->prepare_items();
                                     $dbdemo_user_list->search_box( 'search', 'search_id' );
                                     $dbdemo_user_list->display();
                               ?>
@@ -221,9 +221,11 @@ function render_dbdemo_page() {
  */
 add_action('admin_post_dbdemo_admin_post_nonce', function () {
       global $wpdb;
+      
       $nonce = sanitize_text_field($_POST['nonce']);
-
+      
       if (wp_verify_nonce($nonce, 'dbnonce')) {
+            // print_r( $_GET );
             $name = sanitize_text_field($_POST['name']);
             $email = sanitize_text_field($_POST['email']);
             $id = sanitize_text_field($_POST['id']);
@@ -234,7 +236,7 @@ add_action('admin_post_dbdemo_admin_post_nonce', function () {
                         'email' => $email
                   ], ['id' => $id]);
                   $nonce = wp_create_nonce('dbdemo_edit');
-                  wp_redirect(admin_url('admin.php?page=dbdemo&pid=' . $id.'n={$nonce}'));
+                  wp_redirect(admin_url('admin.php?page=dbdemo&pid=' ). $id."&n={$nonce}'");
             } else {
                   $wpdb->insert("{$wpdb->prefix}persons", [
                         'name' => $name,

@@ -7,12 +7,32 @@ if (!class_exists('WP_List_Table')) {
 
 class DBDEMO_USER_LIST extends WP_List_Table {
       private $_items;
-      function __construct($data) {
-            parent::__construct();
-            $this->_items = $data;
+      private $users_data;
+      
+      // function __construct($data) {
+      //       parent::__construct();
+      //       $this->users_data = $data;
+      // }
+      
+      private function get_users_data( $search = '' ) {
+            global $wpdb;
+            if( !empty( $search ) ) {
+                  return $wpdb->get_results(
+                        "SELECT id, name, email from {$wpdb->prefix}persons WHERE id LIKE '%{$search}%' OR name Like '%{$search}%' OR email Like '%{$search}%'", ARRAY_A );
+            } else {
+                  return $wpdb->get_results(
+                        "SELECT id, name, email from {$wpdb->prefix}persons", ARRAY_A );
+            }
       }
 
       public function prepare_items() {
+            
+            if( isset($_GET['page'] ) && isset($_GET['s'] ) ) {
+                  $this->users_data = $this->get_users_data( $_GET['s'] );
+            } else {
+                  $this->users_data = $this->get_users_data();
+            }
+            
             global $wpdb;
             $columns  = $this->get_columns();
             $hidden   = $this->get_hidden_columns();
@@ -20,17 +40,19 @@ class DBDEMO_USER_LIST extends WP_List_Table {
 
             $perPage     = 10;
             $currentPage = $this->get_pagenum();
-            $totalItems  = count($this->_items);
+            // $totalItems  = count($this->_items);
+            $totalItems  = count($this->users_data);
 
             $this->set_pagination_args(array(
                   'total_items' => $totalItems,
                   'per_page'    => $perPage,
             ));
 
-            $data = array_slice($this->_items, ($currentPage - 1) * $perPage, $perPage);
+            // $data = array_slice($this->_items, ($currentPage - 1) * $perPage, $perPage);
+            $this->users_data = array_slice($this->users_data, ($currentPage - 1) * $perPage, $perPage);
             $this->_column_headers = array($columns, $hidden, $sortable);
-            $this->items           = $data;
-            $this->table_data($data);
+            $this->items           = $this->users_data;
+            // $this->table_data($data);
       }
 
       public function get_columns() {
@@ -45,12 +67,12 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       }
 
       public function column_cb($item) {
-            return "<input type='checkbox' value='{$item["id"]}'/>";
-      }
+            return "<input type='checkbox' value='{$item["id"]}'/>"; }
 
       public function column_action($item) {
-            $link = wp_nonce_url(admin_url('?page=dbdemo&pid=' . $item['id']), 'dbdemo_edit', 'n');
-            return '<a href="' . $link . '">' . __('Action', 'dbdemo') . '</a>';
+            // print_r( $item );
+            $link = wp_nonce_url(admin_url('admin.php?page=dbdemo&pid=') . $item['id'], 'dbdemo_edit', 'n');
+            return "<a href='" . esc_url( $link ) . "'>" . __('Edit', 'dbdemo') . "</a>";
       }
 
       public function column_name($item) {
@@ -83,14 +105,14 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             return $actions;
       }
 
-      public function dbdemo_user_search($item) { 
+      public function dbdemo_user_search($item) {
             $name       = strtolower($item['name']);
             $search_name = sanitize_text_field($_REQUEST['s']);
-            $search_name = strtolower($search_name);
+            // $search_name = strtolower($search_name);     
             if (strpos($name, $search_name) !== false) {
                   return true;
+                  wp_die("You gonna die");
             }
-
             return false;
       }
 
@@ -111,6 +133,9 @@ class DBDEMO_USER_LIST extends WP_List_Table {
 
 
       private function table_data($data) {
+            global $wpdb;
+            $data = $wpdb->get_results($wpdb->prepare("SELECT name FROM {$wpdb->prefix}persons"), ARRAY_A);
+
             if (isset($_REQUEST['s'])) {
                   $data2 = array_filter($data, array($this, 'dbdemo_user_search'));
             }
@@ -138,17 +163,17 @@ class DBDEMO_USER_LIST extends WP_List_Table {
       }
 
       public function column_default($item, $column_name) {
-            // switch ($column_name) {
-            //       case 'id':
-            //       case 'name':
-            //       case 'email':
-            //             return $item[$column_name];
+            switch ($column_name) {
+                  case 'id':
+                  case 'name':
+                  case 'email':
+                        return $item[$column_name];
 
-            //       default:
-            //             return print_r($item, true);
-            // }
+                  default:
+                        return print_r($item, true);
+            }
 
-            return $item[$column_name];
+            // return $item[$column_name];
       }
 
       // private function sort_data($a, $b) {

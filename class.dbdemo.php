@@ -38,7 +38,7 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             $hidden   = $this->get_hidden_columns();
             $sortable = $this->get_sortable_columns();
 
-            $perPage     = 10;
+            $perPage     = 20;
             $currentPage = $this->get_pagenum();
             // $totalItems  = count($this->_items);
             $totalItems  = count($this->users_data);

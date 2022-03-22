@@ -33,10 +33,11 @@ class DBDEMO_USER_LIST extends WP_List_Table {
                   $this->users_data = $this->get_users_data();
             }
             
-            global $wpdb;
             $columns  = $this->get_columns();
             $hidden   = $this->get_hidden_columns();
             $sortable = $this->get_sortable_columns();
+            
+            usort( $this->users_data, [ $this, 'sort_data' ] );
 
             $perPage     = 20;
             $currentPage = $this->get_pagenum();
@@ -176,24 +177,24 @@ class DBDEMO_USER_LIST extends WP_List_Table {
             // return $item[$column_name];
       }
 
-      // private function sort_data($a, $b) {
-      //       $orderby = 'title';
-      //       $order   = 'asc';
+      private function sort_data($a, $b) {
+            $orderby = 'name';
+            $order   = 'asc';
 
-      //       if (!empty($_GET['orderby'])) {
-      //             $orderby = $_GET['orderby'];
-      //       }
+            if (!empty($_GET['orderby'])) {
+                  $orderby = $_GET['orderby'];
+            }
 
-      //       if (!empty($_GET['order'])) {
-      //             $order = $_GET['order'];
-      //       }
+            if (!empty($_GET['order'])) {
+                  $order = $_GET['order'];
+            }
 
-      //       $result = strcmp($a[$orderby], $b[$orderby]);
+            $result = strcmp($a[$orderby], $b[$orderby]);
 
-      //       if ($order === 'asc') {
-      //             return $result;
-      //       }
+            if ($order === 'asc') {
+                  return $result;
+            }
 
-      //       return $result;
-      // }
+            return $result;
+      }
 }
